@@ -397,3 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /PlanningPoker/appsettings.Development.json
+/PlanningPoker/Properties/launchSettings.json
