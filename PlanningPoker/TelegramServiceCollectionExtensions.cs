@@ -4,8 +4,10 @@ using Telegram.Bot;
 
 namespace PlanningPoker;
 
-public static class TelegramServiceCollectionExtensions {
-    public static IServiceCollection AddTelegramBotService(this IServiceCollection services) {
+public static class TelegramServiceCollectionExtensions
+{
+    public static IServiceCollection AddTelegramBotService(this IServiceCollection services)
+    {
         services.AddOptions<TelegramBotOptions>()
             .BindConfiguration(TelegramBotOptions.ConfigurationSectionPath);
 

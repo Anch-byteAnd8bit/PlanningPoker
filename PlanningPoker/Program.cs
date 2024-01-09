@@ -22,7 +22,8 @@ host.Services.GetRequiredService<ILogger<Program>>().LogInformation("Starting up
 
 host.Run();
 
-public sealed class TelegramBotOptions {
+public sealed class TelegramBotOptions
+{
     public const string ConfigurationSectionPath = "Services:TelegramBot";
 
     public required string Token { get; init; }
