@@ -8,4 +8,6 @@
 
 Запуск dev окружения
 
-docker-compose -p pocker-dev -f .\docker-compose.yml --env-file .\.env.dev up -d
+```shell
+docker-compose -p pocker-dev -f .\manifests\docker-compose.yml --env-file .\manifests\.env.dev up -d
+```
