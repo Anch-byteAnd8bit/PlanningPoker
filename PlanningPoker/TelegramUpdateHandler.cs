@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using PlanningPoker.Models;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -49,7 +50,6 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger) : IUpdateHand
         var messageId = update.Message.MessageId;
 
         logger.LogDebug("Received a command to start new session in chat {ChatId}", chatId);
-
         return client.SendTextMessageAsync(
             chatId, "Принято", replyToMessageId: messageId, cancellationToken: cancellationToken
         );

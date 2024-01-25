@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PlanningPoker;
+using PlanningPoker.Models;
 
 var hostBuilder = Host.CreateEmptyApplicationBuilder(new() { Args = args });
 
@@ -15,6 +17,10 @@ hostBuilder.Configuration
 
 hostBuilder.Services
     .AddTelegramBotService();
+
+hostBuilder.Services.AddTransient<SampleServ>();
+
+hostBuilder.Services.AddDbContext<PockerDBContext>(options => options.UseNpgsql(hostBuilder.Configuration.GetConnectionString("DefaultConnection")));
 
 var host = hostBuilder.Build();
 

@@ -1,10 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Diagnostics.Metrics;
-using Telegram.Bot.Types;
-using Telegram.Bot;
-using Telegram.Bot.Polling;
-
-namespace PlanningPoker;
+﻿namespace PlanningPoker;
 
 public class MasterSetting
 {
