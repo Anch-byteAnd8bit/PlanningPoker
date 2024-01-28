@@ -2,10 +2,11 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace PlanningPoker;
+namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
 public class TelegramBotPollingService(
-    IServiceProvider services, ILogger<TelegramBotPollingService> logger
+    IServiceProvider services,
+    ILogger<TelegramBotPollingService> logger
 ) : BackgroundService {
     protected override async Task ExecuteAsync(CancellationToken cancellationToken) {
         // TODO: Wrap into polly's policy

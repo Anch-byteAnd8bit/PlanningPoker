@@ -1,6 +1,6 @@
 ﻿using Telegram.Bot;
 
-namespace PlanningPoker;
+namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
 public class TelegramUpdateReceiveService(
     ITelegramBotClient telegramBotClient, TelegramUpdateHandler telegramUpdateHandler

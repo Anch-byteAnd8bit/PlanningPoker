@@ -1,19 +1,18 @@
-﻿namespace PlanningPoker;
+﻿namespace KbAis.Examples.PlanningPoker.Runner;
 
-public class MasterSetting
-{
+public class MasterSetting {
     public long Id {  get; set; }
     public long ChatId { get; set; }
     public string MasterCode { get; set; }
     public bool IsMaster { get; set; } = false;
+
     public MasterSetting(long id, long chatId, string code) { Id = id; ChatId = chatId; MasterCode = code; }
 
     /// <summary>
     /// Создание кода для настройки мастера группы
     /// </summary>
     /// <returns></returns>
-    public static string GenerateCode()
-    {
+    public static string GenerateCode() {
         var newCode = Random.Shared.Next(1010, 9090).ToString();
         return newCode;
     }
@@ -22,8 +21,6 @@ public class MasterSetting
     /// Проверка правильности кода
     /// </summary>
     /// <returns></returns>
-    public static bool CheckCode(string code, string masterСode) => code == masterСode;
-
-
-
+    public static bool CheckCode(string code, string masterСode) =>
+        code == masterСode;
 }

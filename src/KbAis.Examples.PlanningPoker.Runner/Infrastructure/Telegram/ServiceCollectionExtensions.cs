@@ -2,12 +2,10 @@
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
 
-namespace PlanningPoker;
+namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
-public static class TelegramServiceCollectionExtensions
-{
-    public static IServiceCollection AddTelegramBotService(this IServiceCollection services)
-    {
+public static class ServiceCollectionExtensions {
+    public static IServiceCollection AddTelegramBotServices(this IServiceCollection services) {
         services.AddOptions<TelegramBotOptions>()
             .BindConfiguration(TelegramBotOptions.ConfigurationSectionPath);
 
