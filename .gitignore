@@ -399,3 +399,6 @@ FodyWeavers.xsd
 /PlanningPoker/appsettings.Development.json
 /PlanningPoker/Properties/launchSettings.json
 /PlanningPoker/appsettings.json
+
+# Project's dev artifacts
+mounted/
