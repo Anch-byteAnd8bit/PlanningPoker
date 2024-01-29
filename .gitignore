@@ -402,3 +402,4 @@ FodyWeavers.xsd
 
 # Project's dev artifacts
 mounted/
+/src/KbAis.Examples.PlanningPoker.Runner/appsettings.json
