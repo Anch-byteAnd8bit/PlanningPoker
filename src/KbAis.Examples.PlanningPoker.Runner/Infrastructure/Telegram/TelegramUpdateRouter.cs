@@ -5,7 +5,7 @@ using Telegram.Bot.Types;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
-public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger) : IUpdateHandler {
+public class TelegramUpdateRouter(ILogger<IUpdateHandler> logger) : IUpdateHandler {
     private MasterSetting? master;
 
     public async Task HandleUpdateAsync(
@@ -13,11 +13,10 @@ public class TelegramUpdateHandler(ILogger<IUpdateHandler> logger) : IUpdateHand
     ) {
         using var _ = logger.BeginScope("Handle Telegram Update: {UpdateId}", update.Id);
         
-        var handleTask = update switch
-        {
+        var handleTask = update switch {
             { Message.Text: { } messageText } when messageText.StartsWith("/")
                 => HandleCommand(client, update, messageText, cancellationToken),
-            { Message.From.Id: { } messageId } when master != null && messageId == master.Id 
+            { Message.From.Id: var messageId } when master != null && messageId == master.Id
             => HandleCheckCode(client, update, cancellationToken),
             _
                 => HandleDefault(client, update, cancellationToken)
