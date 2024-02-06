@@ -1,101 +1,66 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
-public class TelegramUpdateRouter(ILogger<IUpdateHandler> logger) : IUpdateHandler {
-    private MasterSetting? master;
+public interface ICommand : IRequest;
 
-    public async Task HandleUpdateAsync(
-        ITelegramBotClient client, Update update, CancellationToken cancellationToken
-    ) {
-        using var _ = logger.BeginScope("Handle Telegram Update: {UpdateId}", update.Id);
+public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand> where TCommand : ICommand;
+
+public record DefaultCommand(Update Update) : ICommand;
+
+internal sealed class DefaultCommandHandler(ILogger<DefaultCommandHandler> logger) : ICommandHandler<DefaultCommand> {
+    public Task Handle(DefaultCommand command, CancellationToken c) {
+        logger.LogDebug("Received update has not been handled: {@Update}", command.Update);
+
+        return Task.CompletedTask;
+    }
+}
+
+public interface ITelegramRouterContext {
+    ILogger<IUpdateHandler> Logger { get; }
+
+    Task Dispatch<T>(T command, CancellationToken c) where T : ICommand;
+}
+
+public class TelegramUpdateRouter(ITelegramRouterContext ctx) : IUpdateHandler {
+    public async Task HandleUpdateAsync(ITelegramBotClient client, Update u, CancellationToken c) {
+        using var _ = ctx.Logger.BeginScope("Handle Telegram Update: {UpdateId}", u.Id);
         
-        var handleTask = update switch {
-            { Message.Text: { } messageText } when messageText.StartsWith("/")
-                => HandleCommand(client, update, messageText, cancellationToken),
-            { Message.From.Id: var messageId } when master != null && messageId == master.Id
-            => HandleCheckCode(client, update, cancellationToken),
-            _
-                => HandleDefault(client, update, cancellationToken)
+        var command = u switch {
+            { Message: var m, Message.Chat.Type: ChatType.Group } => HandleGroupMessage(client, u, m),
+            _ => new DefaultCommand(u),
         };
 
-        await handleTask;
+        // NOTE: Have to await here to prevent logger scope from disposing while handling command.
+        await ctx.Dispatch(command, c);
     }
 
-    private Task HandleCommand(
-        ITelegramBotClient client, Update update, string messageText, CancellationToken cancellationToken
-    ) {
-        return messageText switch {
-            "/session"
-                => HandleCommandNewSession(client, update, cancellationToken),
-            "/master:set" 
-                => HandleCommandSetMaster(client, update, cancellationToken),
-            _
-                => HandleDefault(client, update, cancellationToken)
+    public Task HandlePollingErrorAsync(ITelegramBotClient client, Exception exp, CancellationToken c) {
+        ctx.Logger.LogError(exp, "Caught unexpected exception on telegram update polling");
+
+        return Task.CompletedTask;
+    }
+
+    private ICommand HandleGroupMessage(ITelegramBotClient client, Update u, Message m) {
+        return m switch {
+            // Группа был создана с ботом => Группа => Новый проект; Создатель группы => Организатор
+            { Type: MessageType.GroupCreated } => new DefaultCommand(u),
+            { Type: MessageType.ChatMembersAdded } => HandleChatMembersAdded(client, u, m),
+            _ => new DefaultCommand(u)
         };
     }
 
-    private Task<Message> HandleCommandNewSession(
-        ITelegramBotClient client, Update update, CancellationToken cancellationToken
-    ) {
-        var chatId = update.Message!.Chat.Id;
-
-        var messageId = update.Message.MessageId;
-
-        logger.LogDebug("Received a command to start new session in chat {ChatId}", chatId);
-        return client.SendTextMessageAsync(
-            chatId, "Принято", replyToMessageId: messageId, cancellationToken: cancellationToken
-        );
-    }
-
-    private Task<Message> HandleCommandSetMaster(
-        ITelegramBotClient client, Update update, CancellationToken cancellationToken
-    ) {
-        var sendId = update.Message.From.Id;
-        var chatId = update.Message.Chat.Id;
-        var messageId = update.Message.MessageId;
-        logger.LogDebug("Received a command to start new session in chat {ChatId}", sendId);
-        if (master == null || !master.IsMaster) {
-            string newcode = MasterSetting.GenerateCode();
-            master = new MasterSetting(sendId, chatId, newcode);
-            return client.SendTextMessageAsync(
-                sendId, newcode, cancellationToken: cancellationToken
-            );
+    private ICommand HandleChatMembersAdded(ITelegramBotClient client, Update u, Message m) {
+        if (m.NewChatMembers!.Any(x => x.Id == client.BotId)) {
+            // Бот добавлен в группу => Группа => Новый проект; Добавлявший в группы => Организатор
+            return new DefaultCommand(u);
         }
-        return client.SendTextMessageAsync(
-            master.ChatId, "Мастер уже назначен!!!", replyToMessageId: messageId, cancellationToken: cancellationToken);
 
-    }
-
-    private Task<Message> HandleCheckCode(ITelegramBotClient client, Update update, CancellationToken cancellationToken) {
-        var messageId = update.Message.MessageId;
-        var message = update.Message;
-        master.IsMaster = MasterSetting.CheckCode(message.Text, master.MasterCode);
-        logger.LogDebug("Received update has not been handled: {@Update}", update);
-        if (master.IsMaster)
-            return client.SendTextMessageAsync(
-            master.ChatId, "Мастер назначен", replyToMessageId: messageId, cancellationToken: cancellationToken);
-        
-        return client.SendTextMessageAsync(
-            master.ChatId, "неправильный код", replyToMessageId: messageId, cancellationToken: cancellationToken);
-    }
-
-    private Task HandleDefault(
-        ITelegramBotClient client, Update update, CancellationToken cancellationToken
-    ) {
-        logger.LogDebug("Received update has not been handled: {@Update}", update);
-
-        return Task.CompletedTask;
-    }
-
-    public Task HandlePollingErrorAsync(
-        ITelegramBotClient client, Exception exception, CancellationToken cancellationToken
-    ) {
-        logger.LogError(exception, "Caught unexpected exception during telegram update handle");
-
-        return Task.CompletedTask;
+        return new DefaultCommand(u);
     }
 }
