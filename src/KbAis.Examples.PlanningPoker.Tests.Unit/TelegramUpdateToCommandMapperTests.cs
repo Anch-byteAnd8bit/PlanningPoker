@@ -1,22 +1,19 @@
+using FluentAssertions;
+using KbAis.Examples.PlanningPoker.Runner.Application.Projects;
 using KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
-using NSubstitute;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace KbAis.Examples.PlanningPoker.Tests.Unit;
 
 [Trait("Category", "Functional")]
-public class TelegramUpdateRouterTests {
+public class TelegramUpdateToCommandMapperTests {
     [Theory]
     [MemberData(nameof(TelegramUpdateRouterInput.Updates), MemberType = typeof(TelegramUpdateRouterInput))]
     public async Task Router_should_create_command(Update u) {
-        var ctx = Substitute.For<ITelegramRouterContext>();
+        var updCtx = new UpdateContext { BotId = 1L, Update = u };
 
-        // TODO: Setup interceptor to verify created commands
-        // TODO: Split update handler and UpdateToCommandRouter   
-        var router = new TelegramUpdateRouter(ctx);
-
-        await router.HandleUpdateAsync(default, u, CancellationToken.None);
+        updCtx.MapToCommand().Should().BeOfType(typeof(RegisterNewProjectCommand));
     }
 }
 

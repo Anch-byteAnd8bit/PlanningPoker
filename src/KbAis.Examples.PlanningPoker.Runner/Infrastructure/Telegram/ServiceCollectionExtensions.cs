@@ -18,7 +18,7 @@ public static class ServiceCollectionExtensions {
 
         services.AddTransient<TelegramUpdateReceiveService>();
 
-        services.AddTransient<TelegramUpdateRouter>();
+        services.AddTransient<TelegramUpdateHandler>();
 
         services.AddHostedService<TelegramBotPollingService>();
 
