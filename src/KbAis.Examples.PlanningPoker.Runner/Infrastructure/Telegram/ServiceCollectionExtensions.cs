@@ -6,21 +6,21 @@ namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
 public static class ServiceCollectionExtensions {
     public static IServiceCollection AddTelegramBotServices(this IServiceCollection services) {
-        services.AddOptions<TelegramBotOptions>()
-            .BindConfiguration(TelegramBotOptions.ConfigurationSectionPath);
+        services.AddOptions<TgBotOptions>()
+            .BindConfiguration(TgBotOptions.ConfigurationSectionPath);
 
         services.AddHttpClient("telegram-bot-client")
-            .AddTypedClient<ITelegramBotClient>(static (httpClient, services) => {
-                var options = services.GetRequiredService<IOptions<TelegramBotOptions>>().Value;
+            .AddTypedClient<ITgBotClient>(static (httpClient, services) => {
+                var options = services.GetRequiredService<IOptions<TgBotOptions>>().Value;
 
                 return new TelegramBotClient(options: new(options.Token), httpClient);
             });
 
-        services.AddTransient<TelegramUpdateReceiveService>();
+        services.AddTransient<TgUpdateReceiveService>();
 
-        services.AddTransient<TelegramUpdateHandler>();
+        services.AddTransient<TgUpdateHandler>();
 
-        services.AddHostedService<TelegramBotPollingService>();
+        services.AddHostedService<TgBotPollingService>();
 
         return services;
     }
