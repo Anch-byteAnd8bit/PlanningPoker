@@ -1,0 +1,2 @@
+[services.telegrambot]
+token = 'provide token here'

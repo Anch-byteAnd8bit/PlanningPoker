@@ -402,3 +402,6 @@ FodyWeavers.xsd
 
 # Project's dev artifacts
 mounted/
+
+# Project's dev configuration
+config.dev.toml
