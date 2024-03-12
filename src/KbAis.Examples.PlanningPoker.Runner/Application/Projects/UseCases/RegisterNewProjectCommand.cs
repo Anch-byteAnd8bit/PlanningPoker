@@ -41,10 +41,16 @@ internal sealed class RegisterNewProjectCommandHandler(
                 name = command.Message.Chat.Title,
                 chatId = projectChatId
             };
+            MemberForDB memberdb = new MemberForDB
+            {
+                user_id = facilitatorId,
+                project_id = project.id,
+            };
 
             var message = command.Message.From.Username + " - мастер";
             outbox_table newmsg = new outbox_table { id = Random.Shared.NextInt64(), textmessage = message };
             ctx.projects.Add(project);
+            ctx.members.Add(memberdb);
             ctx.outbox_table.Add(newmsg);
             ctx.SaveChanges();
 
