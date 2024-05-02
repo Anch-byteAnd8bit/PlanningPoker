@@ -25,7 +25,7 @@ public class TgUpdateRouterInput {
     };
 
     private static object[] RegisterProjectAndFacilitatorOnBotAdding() => [
-        typeof(RegisterNewProjectCommand), new Update { Message = new() {
+        typeof(RegisterProjectCommand), new Update { Message = new() {
             Chat = new() { Type = ChatType.Group, Title = "Sample" },
             // TODO: Move to fixture
             From = new() { Username = "Sample" },

@@ -1,6 +1,6 @@
-﻿using KbAis.Examples.PlanningPoker.Runner.Infrastructure.Persistence;
+﻿using System.Reflection;
 using KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tomlyn.Extensions.Configuration;
@@ -12,13 +12,17 @@ hostBuilder.Logging
     .AddConsole();
 
 hostBuilder.Configuration
-    .AddJsonFile("appsettings.json", optional: false)
     .AddTomlFile("config.toml", optional: false)
     .AddTomlFile("config.dev.toml", optional: true);
 
 hostBuilder.Services
-    .AddPersistenceServices()
+    //.AddPersistenceServices()
     .AddTelegramBotServices();
+
+hostBuilder.Services.
+    AddMediatR(config => {
+        config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+    });
 
 var host = hostBuilder.Build();
 host.Run();

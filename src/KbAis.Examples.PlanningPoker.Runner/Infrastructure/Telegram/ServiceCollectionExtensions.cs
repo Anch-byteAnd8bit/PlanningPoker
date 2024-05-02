@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
+using Telegram.Bot.Polling;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
@@ -18,9 +19,11 @@ public static class ServiceCollectionExtensions {
 
         services.AddTransient<TgUpdateReceiveService>();
 
-        services.AddTransient<TgUpdateHandler>();
+        services.AddTransient<IUpdateHandler, TgUpdateHandler>();
 
         services.AddHostedService<TgBotPollingService>();
+
+        services.AddTransient<ITgRouterServices, TgRouterServices>();
 
         return services;
     }

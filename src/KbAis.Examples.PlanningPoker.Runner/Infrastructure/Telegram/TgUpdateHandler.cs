@@ -14,7 +14,7 @@ public class TgUpdateReceiveService(ITgBotClient client, IUpdateHandler updHandl
     }
 }
 
-public class TgUpdateHandler(ITgRouterServiceProvider services) : IUpdateHandler {
+public class TgUpdateHandler(ITgRouterServices services) : IUpdateHandler {
     public async Task HandleUpdateAsync(ITgBotClient client, Update upd, Cancellation c) {
         using var _ = services.Logger.BeginScope("Handle Telegram Update: {UpdateId}", upd.Id);
 
@@ -44,10 +44,10 @@ public static class TgUpdateToCommandMapper {
 
     private delegate ICommand CommandFactory(Update update);
 
-    private readonly static List<(UpdatePredicate Predicate, CommandFactory Command)> Predicates = [
+    private static readonly List<(UpdatePredicate Predicate, CommandFactory Command)> Predicates = [
         ( // Register a new project on bot adding
             ctx => ctx is { Message.Type: MessageType.GroupCreated } || BotHasBeenAdded(ctx),
-            upd => new RegisterNewProjectCommand(upd)
+            upd => new RegisterProjectCommand(upd)
         ),
         (_ => true, u => new DefaultCommand(u))
     ];
