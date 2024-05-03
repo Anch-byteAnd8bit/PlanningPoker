@@ -4,21 +4,23 @@ using Microsoft.Extensions.Logging;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
-public class TgBotPollingService(IServiceProvider services, ILogger<TgBotPollingService> logger) : BackgroundService {
+public class TgUpdatePollingService(
+    IServiceProvider services, ILogger<TgUpdatePollingService> logger
+) : BackgroundService {
     protected override async Task ExecuteAsync(Cancellation c) {
         // TODO: Wrap into polly's policy
         while (c.IsCancellationRequested == false) {
             try {
-                using var updServiceScope = services.CreateScope();
+                using var tgUpdateServiceScope = services.CreateScope();
 
-                var updateReceiver = updServiceScope.ServiceProvider
+                var updateReceiver = tgUpdateServiceScope.ServiceProvider
                     .GetRequiredService<TgUpdateReceiveService>();
 
-                logger.LogDebug("Polling next telegram update");
+                logger.LogDebug("Polling the next Telegram update");
 
                 await updateReceiver.ReceiveAsync(c);
             } catch (Exception exception) {
-                logger.LogError(exception, "Caught exception on telegram update polling");
+                logger.LogError(exception, "Caught an exception while polling Telegram update");
             }
         }
     }

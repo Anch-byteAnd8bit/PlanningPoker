@@ -7,7 +7,7 @@ using Telegram.Bot.Types.Enums;
 namespace KbAis.Examples.PlanningPoker.Tests.Unit;
 
 [Trait("Category", "Functional")]
-public class TgUpdateToCommandMapperTests {
+public class TgUpdateRouterTests {
     [Theory(DisplayName = "Маппер должен возвратить команду соответсвующую обновлению")]
     [MemberData(nameof(TgUpdateRouterInput.Updates), MemberType = typeof(TgUpdateRouterInput))]
     public void Mapper_should_return_correct_command(

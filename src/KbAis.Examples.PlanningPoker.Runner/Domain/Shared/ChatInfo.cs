@@ -1,12 +1,17 @@
 using CSharpFunctionalExtensions;
-using KbAis.Examples.PlanningPoker.Runner.Domain.Members;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Domain.Shared;
 
 public class ChatInfo : ValueObject {
-    public TelegramId Telegram { get; init; }
+    public long Identifier { get; private init; }
+
+    public static Result<ChatInfo> Create(long identifier) {
+        var newChatInfo = new ChatInfo { Identifier = identifier };
+
+        return Result.Success(newChatInfo);
+    }
 
     protected override IEnumerable<IComparable> GetEqualityComponents() {
-        throw new NotImplementedException();
+        yield return Identifier;
     }
 }

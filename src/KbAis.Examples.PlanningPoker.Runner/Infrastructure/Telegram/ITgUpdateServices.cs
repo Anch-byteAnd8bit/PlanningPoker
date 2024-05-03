@@ -5,13 +5,13 @@ using Telegram.Bot.Polling;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
-public interface ITgRouterServices {
+public interface ITgUpdateServices {
     ILogger<IUpdateHandler> Logger { get; }
 
     Task Dispatch<T>(T cmd, Cancellation c) where T : ICommand;
 }
 
-internal sealed class TgRouterServices(ILogger<IUpdateHandler> logger, ISender sender) : ITgRouterServices {
+internal sealed class TgUpdateServices(ILogger<IUpdateHandler> logger, ISender sender) : ITgUpdateServices {
     public ILogger<IUpdateHandler> Logger => logger;
 
     public Task Dispatch<T>(T cmd, Cancellation c) where T : ICommand =>

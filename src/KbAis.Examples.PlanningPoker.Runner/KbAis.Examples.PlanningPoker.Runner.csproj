@@ -18,6 +18,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+    <PackageReference Include="StronglyTypedId" Version="1.0.0-beta08" />
+    <PackageReference Include="StronglyTypedId.Templates" Version="1.0.0-beta08" />
     <PackageReference Include="Telegram.Bot" Version="19.0.0" />
     <PackageReference Include="Tomlyn.Extensions.Configuration" Version="1.0.5" />
   </ItemGroup>

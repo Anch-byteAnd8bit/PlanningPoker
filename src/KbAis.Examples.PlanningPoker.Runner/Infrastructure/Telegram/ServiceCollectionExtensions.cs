@@ -21,9 +21,9 @@ public static class ServiceCollectionExtensions {
 
         services.AddTransient<IUpdateHandler, TgUpdateHandler>();
 
-        services.AddHostedService<TgBotPollingService>();
+        services.AddHostedService<TgUpdatePollingService>();
 
-        services.AddTransient<ITgRouterServices, TgRouterServices>();
+        services.AddTransient<ITgUpdateServices, TgUpdateServices>();
 
         return services;
     }

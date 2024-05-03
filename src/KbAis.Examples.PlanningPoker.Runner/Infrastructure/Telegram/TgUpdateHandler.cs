@@ -8,13 +8,13 @@ using Telegram.Bot.Types.Enums;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
-public class TgUpdateReceiveService(ITgBotClient client, IUpdateHandler updHandler) {
+public class TgUpdateReceiveService(ITgBotClient client, IUpdateHandler handler) {
     public Task ReceiveAsync(Cancellation c) {
-        return client.ReceiveAsync(updHandler, cancellationToken: c);
+        return client.ReceiveAsync(handler, cancellationToken: c);
     }
 }
 
-public class TgUpdateHandler(ITgRouterServices services) : IUpdateHandler {
+public class TgUpdateHandler(ITgUpdateServices services) : IUpdateHandler {
     public async Task HandleUpdateAsync(ITgBotClient client, Update upd, Cancellation c) {
         using var _ = services.Logger.BeginScope("Handle Telegram Update: {UpdateId}", upd.Id);
 
@@ -39,17 +39,18 @@ public class TgUpdateContext {
     public Message? Message => Update.Message;
 }
 
-public static class TgUpdateToCommandMapper {
-    private delegate bool UpdatePredicate(TgUpdateContext tgUpdate);
+public static class TgUpdateRouter {
+    private delegate bool TgUpdatePredicate(TgUpdateContext tgUpdate);
 
     private delegate ICommand CommandFactory(Update update);
 
-    private static readonly List<(UpdatePredicate Predicate, CommandFactory Command)> Predicates = [
-        ( // Register a new project on bot adding
+    private static readonly List<(TgUpdatePredicate Predicate, CommandFactory Command)> Predicates = [
+        ( // Register a new project on bot adding to the project group
             ctx => ctx is { Message.Type: MessageType.GroupCreated } || BotHasBeenAdded(ctx),
-            upd => new RegisterProjectCommand(upd)
+            upd => new RegisterProjectCommand(upd.Message ?? throw new Exception("An invalid update"))
         ),
-        (_ => true, u => new DefaultCommand(u))
+        // If all predicates return false, then route the update to the default handler to discard.
+        (_ => true, upd => new DefaultCommand(upd))
     ];
     
     public static ICommand MapToCommand(this TgUpdateContext ctx) =>
