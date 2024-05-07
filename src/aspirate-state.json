@@ -1,0 +1,7 @@
+{
+  "projectPath": ".",
+  "outputPath": "aspirate-output",
+  "containerBuilder": "docker",
+  "outputFormat": "compose",
+  "privateRegistryEmail": "aspir8@aka.ms"
+}

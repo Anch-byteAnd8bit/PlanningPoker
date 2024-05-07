@@ -1,4 +1,5 @@
-﻿using KbAis.Examples.PlanningPoker.Runner.Application.Core;
+﻿using System.Diagnostics;
+using KbAis.Examples.PlanningPoker.Runner.Application.Core;
 using KbAis.Examples.PlanningPoker.Runner.Application.Projects.UseCases;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
@@ -15,8 +16,16 @@ public class TgUpdateReceiveService(ITgBotClient client, IUpdateHandler handler)
 }
 
 public class TgUpdateHandler(ITgUpdateServices services) : IUpdateHandler {
+    public const string TgUpdateHandlerSourceName = "TgUpdatePollingService";
+
+    private static readonly ActivitySource TgUpdateHandlerActivitySource = new(TgUpdateHandlerSourceName);
+
     public async Task HandleUpdateAsync(ITgBotClient client, Update upd, Cancellation c) {
-        using var _ = services.Logger.BeginScope("Handle Telegram Update: {UpdateId}", upd.Id);
+        using var _0 = TgUpdateHandlerActivitySource.StartActivity("HandleUpdate");
+
+        using var _1 = services.Logger.BeginScope("TelegramUpdate: {UpdateId}", upd.Id);
+
+        services.Logger.LogDebug("Handling a new Telegram update");
 
         var updCtx = new TgUpdateContext { BotId = client.BotId!.Value, Update = upd };
 

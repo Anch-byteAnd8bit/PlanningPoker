@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "http": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:15192",
+      "environmentVariables": {
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": true,
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development",
+        "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:16223",
+        "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:21123"
+      }
+    },
+    "generate-manifest": {
+      "commandName": "Executable",
+      "executablePath": "aspirate",
+      "workingDirectory": "$(ProjectDir)",
+      "dotnetRunMessages": true,
+      "commandLineArgs": "generate --output-format compose",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

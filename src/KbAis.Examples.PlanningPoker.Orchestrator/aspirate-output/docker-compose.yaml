@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  aspire-dashboard:
+    container_name: "aspire-dashboard"
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:8.0.0-preview.6"
+    environment:
+      DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true"
+    ports:
+    - target: 18888
+      published: 18888
+    restart: unless-stopped
+  poker-data:
+    container_name: "poker-data"
+    image: "docker.io/library/postgres:16.2"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+      POSTGRES_USER: "dev"
+      POSTGRES_PASSWORD: "dev123"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_SERVICE_NAME: "poker-data"
+    volumes:
+    - "kbais-examples-planningpoker-orchestrator-poker-data-data:/var/lib/postgresql/data"
+    ports:
+    - target: 5432
+      published: 5432
+    restart: unless-stopped
+  poker-service:
+    container_name: "poker-service"
+    image: "poker-service:latest"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EXCEPTION_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_EMIT_EVENT_LOG_ATTRIBUTES: "true"
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ConnectionStrings__poker-data: "Host=poker-data;Port=5432;Username=dev;Password=dev123"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://aspire-dashboard:18889"
+      OTEL_SERVICE_NAME: "poker-service"
+    restart: unless-stopped
+volumes:
+  kbais-examples-planningpoker-orchestrator-poker-data-data: {}

@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
-namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
+﻿namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
 public class TgUpdatePollingService(
     IServiceProvider services, ILogger<TgUpdatePollingService> logger
