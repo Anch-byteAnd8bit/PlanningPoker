@@ -3,4 +3,4 @@ using MediatR;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Application.Core;
 
-public interface ICommand : IRequest<Result>;
+public interface ICommand : IRequest<Result>, ITransactional;

@@ -11,8 +11,12 @@ namespace KbAis.Examples.PlanningPoker.Runner.Application.Projects.UseCases;
 
 using Command = RegisterProjectCommand;
 
+/// <summary>
+/// Регистрация нового проекта проведения Planning Poker сессий.
+/// </summary>
+/// <param name="Message"></param>
 public record RegisterProjectCommand(Message Message) : ICommand {
-    public Maybe<User> FaciliatorUser => Message.From.AsMaybe();
+    public Maybe<User> FacilitatorUser => Message.From.AsMaybe();
 
     public Maybe<Chat> ProjectChat => Message.Chat.AsMaybe();
 }
@@ -28,32 +32,49 @@ internal sealed class RegisterProjectCommandHandler : IRequestHandler<Command, R
             return Result.Failure("Could not get Project's chat Identifier");
         }
 
-        var pipelineContext = new {
-            ProjectsRepository = Efs.Get<Project, ProjectId>(),
-            C = c
-        };
-
-        await Result.Success(pipelineContext)
-            .Ensure (ctx            => ctx.ProjectsRepository
-                .NotRegisteredOrFailure(projectChatIdentifier, ctx.C))
-            .BindZip(ctx            => ChatInfo.Create(projectChatIdentifier))
-            .Map    ((ctx, chat)    => Project.StartNew(chat))
-            .Tap    ((ctx, project) => ctx.ProjectsRepository.InsertAsync(project, c: ctx.C));
-
-        throw new NotImplementedException();
+        return await CommandContext.Begin(Efs.Get<Project, ProjectId>(), c)
+            .Ensure(ctx => ctx.ProjectsRepository
+                .NotRegisteredOrFailure(projectChatIdentifier, ctx.Cancellation))
+            .BindZip(ctx => ChatInfo.Create(projectChatIdentifier))
+            .Map((ctx, chat) => Project.StartNew(chat))
+            .Tap((ctx, project) => ctx.ProjectsRepository
+                .InsertAsync(project, c: ctx.Cancellation));
     }
 
+    private class CommandContext {
+
+        public IEntityRepository<Project, ProjectId> ProjectsRepository { get; }
+
+        public Cancellation Cancellation { get; }
+
+        private CommandContext(
+            IEntityRepository<Project, ProjectId> projectsRepository,
+            Cancellation                          cancellation
+        ) {
+            ProjectsRepository = projectsRepository;
+            Cancellation = cancellation;
+        }
+
+        public static Result<CommandContext> Begin(
+            IEntityRepository<Project, ProjectId> projectsRepository,
+            Cancellation                          cancellation
+        ) {
+            return new CommandContext(projectsRepository, cancellation);
+        }
+    }
 }
 
 public static class ProjectEntityRepository {
 
     public static async Task<Result> NotRegisteredOrFailure(
-        this IEntityRepository<Project, ProjectId> repository, long projectChatIdentifier, Cancellation c = default
+        this IEntityRepository<Project, ProjectId> repository, long chatId, Cancellation c = default
     ) {
         var project = await repository.Query()
-            .SingleOrDefaultAsync(x => x.Chat.Identifier == projectChatIdentifier, c);
+            .SingleOrDefaultAsync(x => x.Chat.TelegramId == chatId, c);
 
-        return project is not null ? Result.Failure(Project.Errors.AlreadyRregisteredByChat) : Result.Success();
+        return project is not null
+            ? Result.Failure(Project.Errors.AlreadyRegisteredByChat)
+            : Result.Success();
     }
 
 }

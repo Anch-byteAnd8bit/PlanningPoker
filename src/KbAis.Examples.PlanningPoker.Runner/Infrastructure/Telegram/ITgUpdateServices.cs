@@ -1,6 +1,5 @@
 using KbAis.Examples.PlanningPoker.Runner.Application.Core;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Telegram.Bot.Polling;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;

@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
 namespace KbAis.Examples.PlanningPoker.Runner.Infrastructure.Telegram;
 
-public static class ServiceCollectionExtensions {
-    public static IServiceCollection AddTelegramBotServices(this IServiceCollection services) {
+public static class ServiceCollectionEx {
+    public static IServiceCollection AddPlanningPokerTgServices(this IServiceCollection services) {
         services.AddOptions<TgBotOptions>()
             .BindConfiguration(TgBotOptions.ConfigurationSectionPath);
 
-        services.AddHttpClient("telegram-bot-client")
+        const string telegramClientName = "telegram-bot-client";
+
+        services.AddHttpClient(telegramClientName)
             .AddTypedClient<ITgBotClient>(static (httpClient, services) => {
                 var options = services.GetRequiredService<IOptions<TgBotOptions>>().Value;
 
